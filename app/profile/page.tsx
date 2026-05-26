@@ -11,6 +11,7 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [fullName, setFullName] = useState('');
+  const [savedMsg, setSavedMsg] = useState(''); // NUEVO
 
   useEffect(() => {
     const load = async () => {
@@ -19,6 +20,7 @@ export default function ProfilePage() {
 
       const { data: p } = await supabase
         .from('profiles').select('*').eq('id', session.user.id).single();
+
       setProfile(p);
       setFullName(p?.full_name || '');
 
@@ -37,8 +39,18 @@ export default function ProfilePage() {
   }, [router]);
 
   const handleSave = async () => {
+    if (!fullName.trim()) return alert('El nombre no puede estar vacío'); // NUEVO
     setSaving(true);
-    await supabase.from('profiles').update({ full_name: fullName }).eq('id', profile.id);
+
+    await supabase
+      .from('profiles')
+      .update({ full_name: fullName.trim() })
+      .eq('id', profile.id);
+
+    setProfile({ ...profile, full_name: fullName.trim() }); // NUEVO
+    setSavedMsg('✅ Cambios guardados'); // NUEVO
+    setTimeout(() => setSavedMsg(''), 2500); // NUEVO
+
     setSaving(false);
   };
 
@@ -72,7 +84,17 @@ export default function ProfilePage() {
           }}>
             {(profile?.full_name || profile?.username || 'U')[0].toUpperCase()}
           </div>
-          <h2 style={{ fontSize: 22, fontWeight: 800 }}>{profile?.full_name || profile?.username}</h2>
+
+          <h2 style={{ fontSize: 22, fontWeight: 800 }}>
+            {profile?.full_name || profile?.username}
+          </h2>
+
+          {savedMsg && ( // NUEVO
+            <div style={{ color: '#4ade80', fontSize: 13, marginTop: 8 }}>
+              {savedMsg}
+            </div>
+          )}
+
           <span style={{
             background: 'rgba(254,60,114,0.2)', border: '1px solid var(--tinder-red)',
             borderRadius: 20, padding: '3px 14px', fontSize: 12,
@@ -101,11 +123,16 @@ export default function ProfilePage() {
         {/* Edit */}
         <div style={{ background: 'var(--tinder-darker)', borderRadius: 20, padding: '1.5rem', border: '1px solid rgba(255,255,255,0.06)' }}>
           <h3 style={{ fontWeight: 800, marginBottom: 16 }}>✏️ Editar perfil</h3>
+
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             <div>
-              <label style={{ fontSize: 12, color: 'var(--tinder-muted)', display: 'block', marginBottom: 6 }}>Nombre completo</label>
+              <label style={{ fontSize: 12, color: 'var(--tinder-muted)', display: 'block', marginBottom: 6 }}>
+                Nombre completo
+              </label>
+
               <input
                 value={fullName}
+                maxLength={40} // NUEVO
                 onChange={e => setFullName(e.target.value)}
                 style={{
                   width: '100%', background: 'rgba(255,255,255,0.06)',
@@ -114,8 +141,12 @@ export default function ProfilePage() {
                 }}
               />
             </div>
+
             <div>
-              <label style={{ fontSize: 12, color: 'var(--tinder-muted)', display: 'block', marginBottom: 6 }}>Username</label>
+              <label style={{ fontSize: 12, color: 'var(--tinder-muted)', display: 'block', marginBottom: 6 }}>
+                Username
+              </label>
+
               <input
                 value={profile?.username || ''}
                 disabled
@@ -127,11 +158,16 @@ export default function ProfilePage() {
               />
             </div>
 
-            <button onClick={handleSave} disabled={saving} style={{
-              background: 'linear-gradient(135deg, var(--tinder-red), var(--tinder-orange))',
-              border: 'none', borderRadius: 14, padding: '14px',
-              color: '#fff', fontWeight: 800, fontSize: 15, marginTop: 4
-            }}>
+            <button
+              onClick={handleSave}
+              disabled={saving}
+              style={{
+                background: 'linear-gradient(135deg, var(--tinder-red), var(--tinder-orange))',
+                border: 'none', borderRadius: 14, padding: '14px',
+                color: '#fff', fontWeight: 800, fontSize: 15, marginTop: 4,
+                opacity: saving ? 0.7 : 1 // NUEVO
+              }}
+            >
               {saving ? 'Guardando...' : 'Guardar cambios 💾'}
             </button>
           </div>
@@ -143,12 +179,15 @@ export default function ProfilePage() {
         <Link href="/dashboard" style={{ textAlign: 'center', color: 'var(--tinder-muted)' }}>
           <div style={{ fontSize: 22 }}>🔥</div><div style={{ fontSize: 10, marginTop: 2 }}>Discover</div>
         </Link>
+
         <Link href="/favorites" style={{ textAlign: 'center', color: 'var(--tinder-muted)' }}>
           <div style={{ fontSize: 22 }}>⭐</div><div style={{ fontSize: 10, marginTop: 2 }}>Likes</div>
         </Link>
+
         <Link href="/search" style={{ textAlign: 'center', color: 'var(--tinder-muted)' }}>
           <div style={{ fontSize: 22 }}>🔍</div><div style={{ fontSize: 10, marginTop: 2 }}>Buscar</div>
         </Link>
+
         <Link href="/profile" style={{ textAlign: 'center', color: 'var(--tinder-red)' }}>
           <div style={{ fontSize: 22 }}>👤</div><div style={{ fontSize: 10, marginTop: 2, fontWeight: 700 }}>Perfil</div>
         </Link>
