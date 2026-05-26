@@ -1,0 +1,28 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --tinder-red: #FE3C72;
+  --tinder-pink: #FF6B6B;
+  --tinder-orange: #FF8C42;
+  --tinder-dark: #1a1a2e;
+  --tinder-darker: #16213e;
+  --tinder-card: #0f3460;
+  --tinder-text: #ffffff;
+  --tinder-muted: #a0a0b0;
+  --tinder-green: #42e695;
+  --tinder-gold: #ffd700;
+}
+
+html, body {
+  height: 100%;
+  font-family: 'Nunito', sans-serif;
+  background: var(--tinder-dark);
+  color: var(--tinder-text);
+  overflow-x: hidden;
+}
+
+a { text-decoration: none; color: inherit; }
+button { cursor: pointer; font-family: inherit; }
+input, textarea { font-family: inherit; }
